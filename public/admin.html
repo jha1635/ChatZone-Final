@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head><title>Admin Panel</title><link rel="stylesheet" href="style.css"></head>
+<body>
+    <div class="container">
+        <h1>Super Admin Panel</h1>
+        <div id="stats" class="auth-box" style="margin: 0 auto 20px;"></div>
+        <h3>Manage Users</h3>
+        <div id="adminUserList"></div>
+    </div>
+    <script>
+        fetch('/api/admin/stats').then(r => r.json()).then(d => {
+            document.getElementById('stats').innerHTML = `Users: ${d.users} | Messages: ${d.messages}`;
+        });
+        
+        // Simplified user fetch for admin (reuse API)
+        fetch('/api/users').then(r => r.json()).then(users => {
+            const list = document.getElementById('adminUserList');
+            users.forEach(u => {
+                list.innerHTML += `<div class="admin-row">
+                    <span>${u.username} (${u.role})</span>
+                    <button onclick="deleteUser(${u.id})" style="width:auto; bg:red;">Delete</button>
+                </div>`;
+            });
+        });
+
+        function deleteUser(id) {
+            if(confirm('Delete user?')) {
+                fetch('/api/admin/delete-user', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({id})
+                }).then(() => location.reload());
+            }
+        }
+    </script>
+</body>
+</html>
